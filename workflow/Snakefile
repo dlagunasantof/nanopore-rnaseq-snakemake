@@ -1,0 +1,27 @@
+# Nanopore long-read RNA-seq: QC -> transcriptome alignment -> transcript quantification
+# -> gene-level differential expression, orchestrated with Snakemake.
+
+from snakemake.utils import min_version
+
+min_version("8.0")
+
+
+configfile: "config/config.yaml"
+
+
+include: "rules/common.smk"
+include: "rules/reads.smk"
+include: "rules/reference.smk"
+include: "rules/align.smk"
+include: "rules/quant.smk"
+include: "rules/de.smk"
+include: "rules/report.smk"
+
+
+rule all:
+    input:
+        "results/multiqc/multiqc_report.html",
+        "results/counts/transcript_counts.tsv",
+        "results/counts/transcript_tpm.tsv",
+        "results/counts/gene_counts.tsv",
+        deseq2_outputs(),

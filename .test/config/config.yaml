@@ -1,0 +1,27 @@
+# Small synthetic dataset used for testing (GitHub Actions and local checks).
+# Run from the repository root:
+#   snakemake -s workflow/Snakefile --directory .test --sdm conda --cores 2
+
+samples: config/samples.tsv
+
+reference:
+  transcriptome_fasta: ref/transcripts.fa.gz
+  annotation_gtf: ref/annotation.gtf.gz
+
+subsample_reads: 0
+seed: 42
+
+threads:
+  minimap2: 2
+
+minimap2:
+  extra: "-p 0 -N 10"
+
+nanocount:
+  extra: ""
+
+deseq2:
+  enabled: true
+  contrast: ["treated", "control"]
+  alpha: 0.05
+  min_count: 5

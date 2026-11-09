@@ -1,0 +1,9 @@
+# Example design: SG-NEx PCR-cDNA nanopore runs, two cell lines x three replicates.
+# Replace the fastq paths with the files you downloaded (scripts/download_sgnex.sh).
+sample	condition	fastq
+HepG2_rep1	HepG2	data/HepG2_rep1.fastq.gz
+HepG2_rep2	HepG2	data/HepG2_rep2.fastq.gz
+HepG2_rep3	HepG2	data/HepG2_rep3.fastq.gz
+K562_rep1	K562	data/K562_rep1.fastq.gz
+K562_rep2	K562	data/K562_rep2.fastq.gz
+K562_rep3	K562	data/K562_rep3.fastq.gz

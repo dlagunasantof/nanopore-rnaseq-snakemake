@@ -1,0 +1,35 @@
+# ---------------------------------------------------------------------------
+# Main configuration. Paths are relative to the directory you run Snakemake from.
+# ---------------------------------------------------------------------------
+
+# Tab-separated sample sheet with columns: sample, condition, fastq
+samples: config/samples.tsv
+
+reference:
+  # GENCODE human transcriptome and matching annotation (same release for both).
+  # Download with: bash scripts/download_reference.sh
+  transcriptome_fasta: resources/gencode.v47.transcripts.fa.gz
+  annotation_gtf: resources/gencode.v47.annotation.gtf.gz
+
+# Randomly keep this many reads per sample (0 = keep all reads).
+# Useful to test the workflow quickly on a modest server.
+subsample_reads: 500000
+seed: 42
+
+threads:
+  minimap2: 8
+
+minimap2:
+  # -p 0 -N 10 keeps secondary alignments, which NanoCount needs for isoform assignment
+  extra: "-p 0 -N 10"
+
+nanocount:
+  extra: ""
+
+deseq2:
+  enabled: true
+  # [condition of interest, reference condition] -> log2FC = interest / reference
+  contrast: ["K562", "HepG2"]
+  alpha: 0.05
+  # Keep genes with >= min_count reads in at least as many samples as the smallest group
+  min_count: 10

@@ -1,0 +1,26 @@
+# Optional profile to run the workflow on a SLURM cluster.
+# Requires: pip install snakemake-executor-plugin-slurm
+# Usage:    snakemake -s workflow/Snakefile --profile profiles/slurm
+# Adjust the partition, account and resources to your cluster.
+
+executor: slurm
+jobs: 50
+software-deployment-method: conda
+latency-wait: 60
+retries: 1
+
+default-resources:
+  slurm_partition: "CHANGE_ME"
+  slurm_account: "CHANGE_ME"
+  runtime: 60
+  mem_mb: 4000
+
+set-resources:
+  minimap2_index:
+    mem_mb: 16000
+  minimap2_align:
+    mem_mb: 16000
+    runtime: 240
+  nanocount:
+    mem_mb: 16000
+    runtime: 240

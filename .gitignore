@@ -1,0 +1,27 @@
+# Workflow outputs and caches
+results/
+resources/
+logs/
+.snakemake/
+.test/results/
+.test/resources/
+.test/logs/
+.test/.snakemake/
+
+# Real sequencing data (too large for GitHub)
+data/
+*.fast5
+*.pod5
+*.bam
+*.mmi
+
+# Keep the small synthetic test data
+!.test/data/
+!.test/data/*.fastq.gz
+
+# Python / R / editors
+__pycache__/
+*.pyc
+.Rhistory
+.ipynb_checkpoints/
+.DS_Store
