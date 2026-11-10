@@ -22,6 +22,6 @@ rule all:
     input:
         "results/multiqc/multiqc_report.html",
         "results/counts/transcript_counts.tsv",
-        "results/counts/transcript_tpm.tsv",
+        "results/counts/transcript_cpm.tsv",
         "results/counts/gene_counts.tsv",
         deseq2_outputs(),

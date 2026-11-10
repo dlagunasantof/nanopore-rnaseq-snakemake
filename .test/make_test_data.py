@@ -2,7 +2,8 @@
 Generate a small synthetic nanopore-like dataset for testing the workflow:
   - ref/transcripts.fa.gz : 40 transcripts from 15 genes (GENCODE-style headers)
   - ref/annotation.gtf.gz : matching 'gene' and 'transcript' features
-  - data/*.fastq.gz       : 3 control + 3 treated samples, ~1,000 reads each, ~5% errors
+  - data/*.fastq.gz       : 3 control + 3 treated samples, ~1,000 reads each, ~5% errors;
+                            half of the reads are reverse-complemented, as in unstranded PCR-cDNA
 Genes G01-G03 are 4x up and G04-G05 4x down in 'treated', so DESeq2 has something to find.
 
 Usage: python make_test_data.py   (run inside the .test/ folder)
@@ -14,6 +15,13 @@ import random
 random.seed(7)
 BASES = "ACGT"
 N_GENES, READS_PER_SAMPLE, ERROR_RATE = 15, 1000, 0.05
+
+
+COMPLEMENT = str.maketrans("ACGT", "TGCA")
+
+
+def revcomp(seq):
+    return seq.translate(COMPLEMENT)[::-1]
 
 
 def rand_seq(n):
@@ -85,6 +93,8 @@ for condition in ("control", "treated"):
                 # 3'-biased fragment, typical of cDNA reads that start from the polyA tail
                 start = random.randint(0, max(0, len(seq) - 400)) if random.random() < 0.6 else 0
                 read = mutate(seq[start:])
+                if random.random() < 0.5:  # cDNA reads come from either strand
+                    read = revcomp(read)
                 qual = "".join(chr(33 + random.randint(8, 20)) for _ in read)
                 f.write(f"@{name}_read{r}\n{read}\n+\n{qual}\n")
 

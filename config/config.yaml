@@ -20,11 +20,12 @@ threads:
   minimap2: 8
 
 minimap2:
-  # -p 0 -N 10 keeps secondary alignments, which NanoCount needs for isoform assignment
+  # -p 0 -N 10 keeps secondary alignments, which oarfish uses for isoform assignment
   extra: "-p 0 -N 10"
 
-nanocount:
-  extra: ""
+oarfish:
+  # Keep all alignments (both strands, no 3' end filter): suited to PCR-cDNA reads
+  extra: "--filter-group no-filters"
 
 deseq2:
   enabled: true

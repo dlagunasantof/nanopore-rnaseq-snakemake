@@ -1,7 +1,8 @@
 """
-Merge NanoCount outputs (one per sample) into:
-  - transcript_counts.tsv : estimated counts (est_count), transcripts x samples
-  - transcript_tpm.tsv    : TPM, transcripts x samples
+Merge oarfish outputs (one per sample) into:
+  - transcript_counts.tsv : estimated read counts (num_reads), transcripts x samples
+  - transcript_cpm.tsv    : counts per million reads, transcripts x samples
+                            (no length correction: a long read represents one whole molecule)
   - gene_counts.tsv       : estimated counts summed per gene, rounded for DESeq2
 """
 
@@ -16,18 +17,18 @@ tx2gene = pd.read_csv(snakemake.input.tx2gene, sep="\t", dtype=str)
 tx2gene["tx_key"] = tx2gene["transcript_id"].str.replace(r"\.\d+$", "", regex=True)
 tx2gene = tx2gene.drop_duplicates("tx_key").set_index("tx_key")
 
-counts, tpm = {}, {}
+counts = {}
 for sample, path in zip(snakemake.params.samples, snakemake.input.counts):
-    df = pd.read_csv(path, sep="\t").set_index("transcript_name")
-    counts[sample] = df["est_count"]
-    tpm[sample] = df["tpm"]
+    df = pd.read_csv(path, sep="\t").set_index("tname")
+    counts[sample] = df["num_reads"]
 
 tx_counts = pd.DataFrame(counts).fillna(0.0)
-tx_tpm = pd.DataFrame(tpm).fillna(0.0)
-tx_counts.index.name = tx_tpm.index.name = "transcript_id"
+tx_counts = tx_counts[tx_counts.sum(axis=1) > 0]  # drop transcripts with no reads in any sample
+tx_cpm = tx_counts / tx_counts.sum(axis=0) * 1e6
+tx_counts.index.name = tx_cpm.index.name = "transcript_id"
 
 tx_counts.round(3).to_csv(snakemake.output.tx_counts, sep="\t")
-tx_tpm.round(3).to_csv(snakemake.output.tx_tpm, sep="\t")
+tx_cpm.round(3).to_csv(snakemake.output.tx_cpm, sep="\t")
 
 # Gene level
 keys = tx_counts.index.str.replace(r"\.\d+$", "", regex=True)

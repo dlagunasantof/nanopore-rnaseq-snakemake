@@ -21,6 +21,6 @@ set-resources:
   minimap2_align:
     mem_mb: 16000
     runtime: 240
-  nanocount:
+  oarfish:
     mem_mb: 16000
     runtime: 240

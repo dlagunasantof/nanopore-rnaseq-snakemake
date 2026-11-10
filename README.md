@@ -14,7 +14,7 @@ FASTQ ──► seqkit (optional subsampling) ──► NanoPlot (read QC) ─�
   └──► minimap2 -ax map-ont (transcriptome) ──► samtools flagstat ──────► MultiQC report
                      │
                      ▼
-               NanoCount (EM isoform quantification)
+                oarfish (EM isoform quantification)
                      │
                      ▼
          transcript / gene count matrices ──► DESeq2 (results, PCA, MA plot)
@@ -25,15 +25,16 @@ FASTQ ──► seqkit (optional subsampling) ──► NanoPlot (read QC) ─�
 | Optional subsampling | seqkit | `results/reads/` |
 | Read QC | NanoPlot | `results/qc/nanoplot/` |
 | Transcriptome alignment | minimap2 (`-ax map-ont -p 0 -N 10`), samtools | `results/alignments/` |
-| Transcript quantification | NanoCount | `results/nanocount/` |
+| Transcript quantification | oarfish | `results/oarfish/` |
 | Count matrices | pandas | `results/counts/` |
 | Differential expression | DESeq2 | `results/deseq2/` |
 | Summary report | MultiQC | `results/multiqc/multiqc_report.html` |
 
 **Design choices**
 
-- Reads are aligned to the **transcriptome**, keeping secondary alignments, so that NanoCount can resolve reads compatible with several isoforms using an expectation–maximisation algorithm.
-- Transcript counts are summed per gene (using the GTF) for DESeq2; transcript-level counts and TPM are kept for isoform analyses.
+- Reads are aligned to the **transcriptome**, keeping secondary alignments, so that oarfish can resolve reads compatible with several isoforms using an expectation–maximisation algorithm.
+- Alignments on **both strands** are kept. PCR-cDNA reads come in both orientations (unlike direct RNA reads); quantifiers designed for direct RNA, such as NanoCount, discard reverse-strand alignments and would lose about half of the reads. The synthetic test data include reverse-complemented reads to guard against this.
+- Transcript counts are summed per gene (using the GTF) for DESeq2; transcript-level counts and counts per million (CPM) are kept for isoform analyses.
 - DESeq2 runs only when the sample sheet has at least two conditions with two or more replicates each.
 - Technical covariates such as the library kit or sequencing batch can be added to the model (`deseq2.covariates` in the config, e.g. `["kit"]` → `design ~ kit + condition`). The PCA report then shows the samples before and after removing that effect.
 
@@ -54,7 +55,7 @@ cd nanopore-rnaseq-snakemake
 snakemake -s workflow/Snakefile --directory .test --sdm conda --cores 2
 ```
 
-The test data (`.test/`) contain 6 samples × 1,000 simulated nanopore-like reads from 40 transcripts; three genes are up-regulated and two down-regulated in `treated`. Regenerate them with `python .test/make_test_data.py` from inside `.test/`.
+The test data (`.test/`) contain 6 samples × 1,000 simulated nanopore-like reads from 40 transcripts (half of them reverse-complemented, as in unstranded cDNA); three genes are up-regulated and two down-regulated in `treated`. Regenerate them with `python .test/make_test_data.py` from inside `.test/`.
 
 ### 3. Run on real data
 
@@ -111,7 +112,7 @@ snakemake -s workflow/Snakefile --profile profiles/slurm
 ## Data and tools
 
 - SG-NEx: Chen Y. *et al.* A systematic benchmark of Nanopore long-read RNA sequencing for transcript-level analysis in human cell lines. *Nature Methods* 22, 801–812 (2025).
-- [minimap2](https://github.com/lh3/minimap2) · [samtools](https://github.com/samtools/samtools) · [NanoCount](https://github.com/a-slide/NanoCount) · [NanoPlot](https://github.com/wdecoster/NanoPlot) · [seqkit](https://github.com/shenwei356/seqkit) · [DESeq2](https://bioconductor.org/packages/DESeq2) · [MultiQC](https://multiqc.info) · [Snakemake](https://snakemake.github.io)
+- [minimap2](https://github.com/lh3/minimap2) · [samtools](https://github.com/samtools/samtools) · [oarfish](https://github.com/COMBINE-lab/oarfish) · [NanoPlot](https://github.com/wdecoster/NanoPlot) · [seqkit](https://github.com/shenwei356/seqkit) · [DESeq2](https://bioconductor.org/packages/DESeq2) · [MultiQC](https://multiqc.info) · [Snakemake](https://snakemake.github.io)
 
 ## Author
 

@@ -1,8 +1,8 @@
 rule minimap2_align:
     """
     Align reads to the transcriptome. Secondary alignments (-N) are kept on purpose:
-    NanoCount uses them to assign multi-mapping reads to isoforms with an EM algorithm.
-    The BAM is left unsorted, as NanoCount expects reads grouped by name.
+    oarfish uses them to assign multi-mapping reads to isoforms with an EM algorithm.
+    The BAM is left unsorted, as oarfish expects the alignments of each read to be grouped.
     """
     input:
         reads="results/reads/{sample}.fastq.gz",

@@ -17,8 +17,9 @@ threads:
 minimap2:
   extra: "-p 0 -N 10"
 
-nanocount:
-  extra: ""
+oarfish:
+  # Keep all alignments (both strands, no 3' end filter): suited to PCR-cDNA reads
+  extra: "--filter-group no-filters"
 
 deseq2:
   enabled: true

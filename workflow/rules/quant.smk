@@ -1,27 +1,33 @@
-rule nanocount:
-    """Transcript-level quantification of long reads with NanoCount (EM over multi-mapping reads)."""
+rule oarfish:
+    """
+    Transcript-level quantification of long reads with oarfish (EM over multi-mapping reads).
+    Alignments on both strands are kept: PCR-cDNA reads come in both orientations, unlike
+    direct RNA reads, so a strand filter would discard real reads.
+    """
     input:
         "results/alignments/{sample}.bam",
     output:
-        "results/nanocount/{sample}.tsv",
+        quant="results/oarfish/{sample}.quant",
     params:
-        extra=config["nanocount"]["extra"],
+        prefix=lambda wc, output: output.quant.removesuffix(".quant"),
+        extra=config["oarfish"]["extra"],
+    threads: 4
     log:
-        "logs/nanocount/{sample}.log",
+        "logs/oarfish/{sample}.log",
     conda:
-        "../envs/nanocount.yaml"
+        "../envs/oarfish.yaml"
     shell:
-        "NanoCount -i {input} -o {output} {params.extra} > {log} 2>&1"
+        "oarfish -j {threads} -a {input} -o {params.prefix} {params.extra} > {log} 2>&1"
 
 
 rule merge_counts:
     """Merge per-sample tables into transcript and gene count matrices."""
     input:
-        counts=expand("results/nanocount/{sample}.tsv", sample=SAMPLES),
+        counts=expand("results/oarfish/{sample}.quant", sample=SAMPLES),
         tx2gene="resources/reference/tx2gene.tsv",
     output:
         tx_counts="results/counts/transcript_counts.tsv",
-        tx_tpm="results/counts/transcript_tpm.tsv",
+        tx_cpm="results/counts/transcript_cpm.tsv",
         gene_counts="results/counts/gene_counts.tsv",
     params:
         samples=SAMPLES,
