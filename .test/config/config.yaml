@@ -23,5 +23,6 @@ nanocount:
 deseq2:
   enabled: true
   contrast: ["treated", "control"]
+  covariates: ["batch"]
   alpha: 0.05
   min_count: 5

@@ -5,3 +5,4 @@ channels:
 dependencies:
   - bioconductor-deseq2=1.50.2
   - r-ggplot2
+  - bioconductor-limma

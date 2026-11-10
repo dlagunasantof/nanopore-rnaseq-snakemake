@@ -89,9 +89,10 @@ for condition in ("control", "treated"):
                 f.write(f"@{name}_read{r}\n{read}\n+\n{qual}\n")
 
 with open("config/samples.tsv", "w") as f:
-    f.write("sample\tcondition\tfastq\n")
+    f.write("sample\tcondition\tbatch\tfastq\n")
     for condition in ("control", "treated"):
         for rep in (1, 2, 3):
-            f.write(f"{condition}_rep{rep}\t{condition}\tdata/{condition}_rep{rep}.fastq.gz\n")
+            batch = "A" if rep == 1 else "B"  # balanced technical batch, as in the SG-NEx design
+            f.write(f"{condition}_rep{rep}\t{condition}\t{batch}\tdata/{condition}_rep{rep}.fastq.gz\n")
 
 print(f"{len(transcripts)} transcripts, {N_GENES} genes, 6 samples x {READS_PER_SAMPLE} reads")

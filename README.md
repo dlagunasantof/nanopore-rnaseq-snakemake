@@ -35,6 +35,7 @@ FASTQ ──► seqkit (optional subsampling) ──► NanoPlot (read QC) ─�
 - Reads are aligned to the **transcriptome**, keeping secondary alignments, so that NanoCount can resolve reads compatible with several isoforms using an expectation–maximisation algorithm.
 - Transcript counts are summed per gene (using the GTF) for DESeq2; transcript-level counts and TPM are kept for isoform analyses.
 - DESeq2 runs only when the sample sheet has at least two conditions with two or more replicates each.
+- Technical covariates such as the library kit or sequencing batch can be added to the model (`deseq2.covariates` in the config, e.g. `["kit"]` → `design ~ kit + condition`). The PCA report then shows the samples before and after removing that effect.
 
 ## Quick start
 
@@ -63,7 +64,7 @@ The test data (`.test/`) contain 6 samples × 1,000 simulated nanopore-like read
 bash scripts/download_reference.sh 47   # check the latest release at gencodegenes.org
 ```
 
-**Reads**: the example design uses public data from the [Singapore Nanopore Expression Project (SG-NEx)](https://registry.opendata.aws/sgnex/), PCR-cDNA runs of two cell lines (HepG2, K562) in three replicates each:
+**Reads**: the example design uses public data from the [Singapore Nanopore Expression Project (SG-NEx)](https://registry.opendata.aws/sgnex/), PCR-cDNA runs of two cell lines (HepG2, K562) in three biological replicates each. SG-NEx sequenced these samples with two PCR-cDNA kits, so each cell line uses one run of the original kit and two of the stranded kit; this balanced design lets DESeq2 separate the kit effect from the cell-line effect. The exact runs are listed in `config/samples.tsv`.
 
 ```bash
 conda install -c conda-forge awscli

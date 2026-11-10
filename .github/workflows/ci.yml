@@ -20,6 +20,7 @@ jobs:
           miniforge-version: latest
           channels: conda-forge,bioconda
           channel-priority: strict
+          conda-remove-defaults: "true"
           activate-environment: snakemake
           python-version: "3.12"
 

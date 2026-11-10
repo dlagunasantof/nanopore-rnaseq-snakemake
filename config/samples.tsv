@@ -1,9 +1,17 @@
-# Example design: SG-NEx PCR-cDNA nanopore runs, two cell lines x three replicates.
-# Replace the fastq paths with the files you downloaded (scripts/download_sgnex.sh).
-sample	condition	fastq
-HepG2_rep1	HepG2	data/HepG2_rep1.fastq.gz
-HepG2_rep2	HepG2	data/HepG2_rep2.fastq.gz
-HepG2_rep3	HepG2	data/HepG2_rep3.fastq.gz
-K562_rep1	K562	data/K562_rep1.fastq.gz
-K562_rep2	K562	data/K562_rep2.fastq.gz
-K562_rep3	K562	data/K562_rep3.fastq.gz
+# SG-NEx PCR-cDNA runs (https://registry.opendata.aws/sgnex/), one run per biological replicate.
+# kit: "original" = SGNex_*_cDNA_*, "stranded" = SGNex_*_cDNAStranded_*. Each cell line has
+# 1 original + 2 stranded samples, so the kit effect can be modelled (design ~ kit + condition).
+# Source runs:
+#   HepG2_rep1 = SGNex_HepG2_cDNA_replicate1_run4
+#   HepG2_rep2 = SGNex_HepG2_cDNAStranded_replicate4_run3
+#   HepG2_rep3 = SGNex_HepG2_cDNAStranded_replicate5_run4
+#   K562_rep1  = SGNex_K562_cDNA_replicate1_run3
+#   K562_rep2  = SGNex_K562_cDNAStranded_replicate2_run3
+#   K562_rep3  = SGNex_K562_cDNAStranded_replicate3_run2
+sample	condition	kit	fastq
+HepG2_rep1	HepG2	original	data/HepG2_rep1.fastq.gz
+HepG2_rep2	HepG2	stranded	data/HepG2_rep2.fastq.gz
+HepG2_rep3	HepG2	stranded	data/HepG2_rep3.fastq.gz
+K562_rep1	K562	original	data/K562_rep1.fastq.gz
+K562_rep2	K562	stranded	data/K562_rep2.fastq.gz
+K562_rep3	K562	stranded	data/K562_rep3.fastq.gz

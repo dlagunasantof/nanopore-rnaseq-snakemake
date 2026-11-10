@@ -19,6 +19,14 @@ if samples.index.duplicated().any():
 
 SAMPLES = samples.index.tolist()
 
+# Technical covariates for DESeq2 (e.g. sequencing kit or batch) must be sample sheet columns
+COVARIATES = config.get("deseq2", {}).get("covariates", []) or []
+_missing_cov = [c for c in COVARIATES if c not in samples.columns]
+if _missing_cov:
+    raise ValueError(
+        f"deseq2.covariates {_missing_cov} are not columns of the sample sheet {config['samples']}."
+    )
+
 
 wildcard_constraints:
     sample="|".join(SAMPLES),

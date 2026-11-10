@@ -13,7 +13,7 @@ reference:
 
 # Randomly keep this many reads per sample (0 = keep all reads).
 # Useful to test the workflow quickly on a modest server.
-subsample_reads: 500000
+subsample_reads: 1000000
 seed: 42
 
 threads:
@@ -30,6 +30,9 @@ deseq2:
   enabled: true
   # [condition of interest, reference condition] -> log2FC = interest / reference
   contrast: ["K562", "HepG2"]
+  # Extra columns of samples.tsv to include in the model as technical covariates,
+  # e.g. ["kit"] -> design ~ kit + condition. Use [] for design ~ condition.
+  covariates: ["kit"]
   alpha: 0.05
   # Keep genes with >= min_count reads in at least as many samples as the smallest group
   min_count: 10

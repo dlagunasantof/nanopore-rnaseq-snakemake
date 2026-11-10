@@ -10,6 +10,7 @@ rule deseq2:
         ma="results/deseq2/ma_plot.pdf",
     params:
         contrast=config["deseq2"]["contrast"],
+        covariates=COVARIATES,
         alpha=config["deseq2"]["alpha"],
         min_count=config["deseq2"]["min_count"],
     log:
