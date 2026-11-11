@@ -100,14 +100,53 @@ snakemake -s workflow/Snakefile --profile profiles/slurm
 │   └── scripts/            reference preparation, count merging, DESeq2
 ├── profiles/slurm/         example cluster profile
 ├── scripts/                data download helpers
+├── docs/figures/           figures shown in this README
 ├── .test/                  synthetic test dataset and config
 └── .github/workflows/      continuous integration
 ```
 
 ## Results on SG-NEx data
 
-<!-- After running on real data, add here: number of reads per sample, mapping rate,
-     the PCA plot and the number of differentially expressed genes. -->
+**K562 (chronic myeloid leukaemia) vs HepG2 (hepatocellular carcinoma)**, PCR-cDNA, 3 biological replicates per cell line, 1,000,000 reads per sample, DESeq2 design `~ kit + condition`. The full run took about 70 minutes on a 16-core server with `--cores 8`.
+
+**1,899 genes are differentially expressed** (adjusted p < 0.05). Marker genes behave as expected for each cell type:
+
+| Gene | Lineage | log2 fold change (K562 / HepG2) | Adjusted p |
+| --- | --- | --- | --- |
+| HBG2 | Erythroid (fetal haemoglobin) | +14.4 | 3.1 × 10⁻²⁶ |
+| HBG1 | Erythroid (fetal haemoglobin) | +14.0 | 2.6 × 10⁻²⁵ |
+| GATA1 | Erythroid transcription factor | +9.0 | 1.2 × 10⁻¹⁰ |
+| ALB | Hepatocyte (albumin) | −13.3 | 9.7 × 10⁻²³ |
+| APOA1 | Hepatocyte (apolipoprotein A-I) | −12.9 | 9.8 × 10⁻²² |
+| AFP | Fetal liver (alpha-fetoprotein) | −9.9 | 9.3 × 10⁻²⁰ |
+
+**Samples separate by cell line; a smaller kit effect is removed by the model.** Cell line explains 87% of the variance (PC1) and the library kit 8% (PC2). After removing the kit effect, PC1 explains 96% and replicates group by cell line only.
+
+| As measured | After removing the kit effect |
+| --- | --- |
+| ![PCA as measured](docs/figures/pca_measured.png) | ![PCA after removing the kit effect](docs/figures/pca_kit_removed.png) |
+
+**Per-sample metrics**
+
+| Sample | Kit | Median read length (nt) | Reads aligned | Reads quantified by oarfish | Reads kept by NanoCount (v1) |
+| --- | --- | --- | --- | --- | --- |
+| HepG2_rep1 | original | 721 | 84.9% | 848,863 | 264,892 |
+| HepG2_rep2 | stranded | 586 | 59.2% | 592,149 | 388,480 |
+| HepG2_rep3 | stranded | 304 | 47.7% | 477,002 | 241,732 |
+| K562_rep1 | original | 846 | 86.4% | 863,741 | 256,432 |
+| K562_rep2 | stranded | 377 | 47.9% | 478,730 | 307,494 |
+| K562_rep3 | stranded | 239 | 18.6% | 185,506 | 44,294 |
+
+### What the first run taught us
+
+The first version of the workflow found only **483** differentially expressed genes, and the PCA showed a strong second axis (18% of the variance) that separated samples by library kit rather than by biology. Two issues explained it:
+
+1. **The quantifier did not fit the protocol.** NanoCount was designed for direct RNA, where every read has the same orientation, and it always discards alignments to the reverse strand. PCR-cDNA reads come in both orientations, so NanoCount kept only about 30% of the aligned reads in the original-kit samples and 51–66% in most stranded-kit samples. Because the loss depended on the kit, it inflated the kit effect. Replacing NanoCount with **oarfish**, which keeps both strands, recovered nearly all aligned reads. The synthetic test data now include reverse-complemented reads so that continuous integration catches this kind of error.
+2. **A real technical batch effect.** SG-NEx sequenced these cell lines with two PCR-cDNA kits that differ in read length and mapping rate. The samples were chosen so that each cell line has one original-kit and two stranded-kit runs; this balanced design lets DESeq2 estimate the kit effect (`~ kit + condition`) instead of confusing it with the difference between cell lines.
+
+Together, the two changes raised the number of differentially expressed genes from **483 to 1,899**.
+
+**Known limitation:** stranded-kit samples have shorter reads and lower mapping rates, and K562_rep3 aligns only 18.6% of its reads. It still groups with the other K562 replicates. Orienting and trimming reads with a cDNA preprocessing tool such as pychopper before alignment is a natural next improvement.
 
 ## Data and tools
 
